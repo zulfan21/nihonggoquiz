@@ -1,0 +1,3 @@
+export const fullVocabData = [
+{id:"watashi",group:"kata_ganti",chapter:1,reading:[{kanji:"私",furigana:"わたし"}],answer:["saya"],explanation:"Kata ganti orang pertama.",conversation:{japanese:[{speaker:"A",reading:[{kanji:"私",furigana:"わたし"},{kanji:"は",furigana:""},{kanji:"インドネシア",furigana:""},{kanji:"から",furigana:""},{kanji:"来",furigana:"き"},{kanji:"ました。",furigana:""}]},{speaker:"B",reading:[{kanji:"へえ、",furigana:""},{kanji:"インドネシア！",furigana:""},{kanji:"いい",furigana:""},{kanji:"所",furigana:"ところ"},{kanji:"ですね。",furigana:""}]}],translation:["A: Saya datang dari Indonesia.","B: Wah, Indonesia! Tempat yang bagus ya."]}}
+];
