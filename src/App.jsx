@@ -663,15 +663,18 @@ const App = () => {
 
           {/* SELECTION SCREEN */}
           {quizMode === "selection" && (
-            <>
-              <h2 className="text-5xl font-black mb-4 text-slate-800">
+            <div className="w-full max-w-5xl mx-auto">
+              {/* TITLE */}
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-3 lg:mb-4 text-slate-800">
                 Mulai Latihan
               </h2>
-              <p className="text-lg text-slate-400 mb-12">
+
+              <p className="text-sm sm:text-base lg:text-lg text-slate-400 mb-8 lg:mb-12">
                 Pilih kategori soal untuk memulai sesi 20 pertanyaan.
               </p>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10">
+              {/* CARD LIST */}
+              <div className="flex flex-col gap-5 sm:gap-6 lg:grid lg:grid-cols-2 lg:gap-8">
                 {categories.map((cat) => {
                   const Icon = cat.icon;
 
@@ -679,25 +682,46 @@ const App = () => {
                     <button
                       key={cat.id}
                       onClick={() => startQuiz(cat.id)}
-                      className="flex items-center gap-6 p-8 rounded-3xl border-2 border-slate-200 hover:border-indigo-500 hover:bg-indigo-50 transition-all text-left group shadow-md hover:shadow-xl"
+                      className="
+              flex items-center gap-4 sm:gap-6
+              p-5 sm:p-6 lg:p-8
+              rounded-2xl lg:rounded-3xl
+              border border-slate-200
+              hover:border-indigo-500
+              hover:bg-indigo-50
+              transition-all
+              text-left
+              shadow-sm hover:shadow-xl
+              bg-white
+            "
                     >
+                      {/* ICON */}
                       <div
-                        className={`${cat.color} p-5 rounded-2xl text-white text-2xl`}
+                        className={`
+                ${cat.color}
+                p-4 sm:p-5
+                rounded-xl sm:rounded-2xl
+                text-white
+                text-xl sm:text-2xl
+              `}
                       >
                         <Icon />
                       </div>
 
+                      {/* TEXT */}
                       <div>
-                        <h3 className="text-xl font-bold text-slate-800">
+                        <h3 className="text-lg sm:text-xl font-bold text-slate-800">
                           {cat.name}
                         </h3>
-                        <p className="text-sm text-slate-400 mt-1">20 Soal</p>
+                        <p className="text-xs sm:text-sm text-slate-400 mt-1">
+                          20 Soal
+                        </p>
                       </div>
                     </button>
                   );
                 })}
               </div>
-            </>
+            </div>
           )}
 
           {/* GROUP SELECTION SCREEN */}
