@@ -537,11 +537,21 @@ const App = () => {
   };
 
   return (
-    <div className="min-h-screen w-screen bg-slate-50 font-sans text-slate-900 lg:h-screen lg:overflow-hidden">
+    <div
+      className={`
+        w-screen bg-slate-50 font-sans text-slate-900
+        ${
+          quizMode === "quiz" || quizMode === "finished"
+            ? "h-screen overflow-hidden"
+            : "min-h-screen"
+        }
+        lg:h-screen lg:overflow-hidden
+      `}
+    >
       <div className="min-h-screen lg:h-screen w-full bg-white flex flex-col lg:flex-row">
         {/* SIDE PANEL */}
         <div
-          className={`lg:w-[28%] p-5 lg:p-8 text-white flex flex-col justify-between min-h-[180px] lg:min-h-full lg:overflow-hidden transition-colors duration-500 ${
+          className={`lg:w-[28%] px-5 py-3 lg:p-8 text-white flex flex-col justify-between min-h-[180px] lg:min-h-full lg:overflow-hidden transition-colors duration-500 ${
             quizMode === "selection" ||
             quizMode === "groupSelection" ||
             quizMode === "dictionary"
@@ -550,7 +560,7 @@ const App = () => {
           }`}
         >
           <div>
-            <div className="flex items-center gap-3 mb-4 lg:mb-6">
+            <div className="flex items-center gap-3 mb-3 lg:mb-6">
               <span
                 className={`p-2 lg:p-2 rounded-xl font-black text-lg lg:text-xl transition-colors duration-500 ${
                   quizMode === "selection" ||
@@ -563,17 +573,16 @@ const App = () => {
               >
                 あ
               </span>
-
               <h1 className="text-lg lg:text-2xl font-bold">Nihongo Quizz</h1>
             </div>
 
-            <p className="hidden lg:block text-white/80 text-sm leading-relaxed mb-8">
+            <p className="hidden lg:block text-white/100 text-sm leading-relaxed mb-8">
               Latihan interaktif Bahasa Jepang dengan sistem adaptive learning.
             </p>
           </div>
 
           {quizMode === "quiz" && (
-            <div className="bg-black/10 p-6 rounded-2xl">
+            <div className="bg-black/10 p-4 lg:p-6 rounded-2xl">
               <p className="text-xs uppercase tracking-widest opacity-60 mb-1">
                 Progress Latihan
               </p>
@@ -616,7 +625,20 @@ const App = () => {
         </div>
 
         {/* MAIN AREA */}
-        <div className="lg:w-[72%] p-6 lg:p-12 flex flex-col bg-white min-h-screen lg:h-full lg:min-h-0 lg:overflow-hidden">
+        <div
+          className={`
+            lg:w-[72%] 
+            p-6 lg:p-12 
+            flex flex-col 
+            bg-white 
+            ${
+              quizMode === "quiz" || quizMode === "finished"
+                ? "h-screen overflow-hidden"
+                : "min-h-screen"
+            }
+            lg:h-full lg:min-h-0 lg:overflow-hidden
+          `}
+        >
           {/* Tombol X untuk keluar */}
           {quizMode !== "selection" && quizMode !== "groupSelection" && (
             <button
