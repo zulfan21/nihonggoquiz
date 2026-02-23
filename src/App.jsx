@@ -757,23 +757,26 @@ const App = () => {
                 <ArrowLeft size={20} /> Kembali
               </button>
 
-              <h2 className="text-5xl font-black mb-4 text-slate-800">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-3 lg:mb-4 text-slate-800">
                 Pilih Grup Kosakata
               </h2>
-              <p className="text-slate-400 mb-6">
+              <p className="text-sm sm:text-base text-slate-400 mb-5 lg:mb-6">
                 Pilih grup kosakata yang ingin kamu latih. Kamu bisa memilih
                 lebih dari satu.
               </p>
 
-              <div className="grid grid-cols-2 gap-3 mb-6">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-3 mb-6">
                 {Object.keys(groupedVocab).map((group) => (
                   <label
                     key={group}
-                    className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                      selectedGroups.includes(group)
-                        ? "border-indigo-500 bg-indigo-50"
-                        : "border-slate-200 hover:border-indigo-300 bg-white"
-                    }`}
+                    className={`flex items-center gap-2 sm:gap-3
+                      p-3 sm:p-4
+                      rounded-xl border-2
+                      cursor-pointer transition-all ${
+                        selectedGroups.includes(group)
+                          ? "border-indigo-500 bg-indigo-50"
+                          : "border-slate-200 hover:border-indigo-300 bg-white"
+                      }`}
                   >
                     <input
                       type="checkbox"
@@ -787,10 +790,10 @@ const App = () => {
                       }}
                       className="accent-indigo-600 w-5 h-5"
                     />
-                    <span className="capitalize font-medium text-slate-700">
+                    <span className="capitalize font-medium text-sm sm:text-base text-slate-700">
                       {group.replace("_", " ")}
                     </span>
-                    <span className="ml-auto text-xs text-slate-400">
+                    <span className="ml-auto text-[11px] sm:text-xs text-slate-400">
                       {groupedVocab[group].length} kata
                     </span>
                   </label>
@@ -800,7 +803,14 @@ const App = () => {
               <button
                 onClick={startQuizFromGroups}
                 disabled={selectedGroups.length === 0}
-                className="w-full bg-indigo-600 text-white p-5 rounded-2xl font-bold text-xl hover:bg-indigo-700 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-indigo-600 text-white
+                  p-4 sm:p-5
+                  rounded-2xl
+                  font-bold
+                  text-base sm:text-xl
+                  hover:bg-indigo-700 transition
+                  flex items-center justify-center gap-2 
+                  disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Mulai Latihan <ChevronRight />
               </button>
@@ -809,15 +819,15 @@ const App = () => {
 
           {/* QUIZ */}
           {quizMode === "quiz" && quizData.length > 0 && (
-            <div className="w-full flex-1 flex justify-center lg:items-center items-start pt-10 lg:pt-0">
+            <div className="w-full flex-1 flex justify-center lg:items-center items-start pt-6 lg:pt-0">
               <div className="w-full max-w-3xl px-4">
                 {/* SOAL */}
                 <div className="text-center mb-10">
-                  <div className="text-6xl lg:text-7xl font-black text-slate-800 mb-6 min-h-[140px] flex items-center justify-center">
+                  <div className="text-4xl sm:text-5xl lg:text-7xl font-black text-slate-800 mb-4 lg:mb-6 min-h-[100px] lg:min-h-[140px] flex items-center justify-center">
                     {quizData[currentIndex]?.display}
                   </div>
 
-                  <div className="inline-block px-4 py-1 bg-indigo-50 text-indigo-600 rounded-full text-sm font-bold border border-indigo-100 uppercase tracking-widest">
+                  <div className="inline-block px-3 py-1 lg:px-4 lg:py-1 bg-indigo-50 text-indigo-600 rounded-full text-xs lg:text-sm font-bold border border-indigo-100 uppercase tracking-widest">
                     {quizData[currentIndex]?.prompt}
                   </div>
                 </div>
@@ -834,13 +844,13 @@ const App = () => {
                       value={userInput}
                       onChange={(e) => setUserInput(e.target.value)}
                       placeholder="Ketik jawaban..."
-                      className="w-full p-5 text-center text-2xl border-2 border-slate-200 rounded-2xl bg-slate-50 outline-none transition-all text-slate-800 placeholder:text-slate-400 focus:border-indigo-500"
+                      className="w-full p-4 lg:p-5 text-center text-lg lg:text-2xl border-2 border-slate-200 rounded-2xl bg-slate-50 outline-none transition-all text-slate-800 placeholder:text-slate-400 focus:border-indigo-500"
                     />
 
                     <button
                       type="submit"
                       disabled={!userInput}
-                      className="w-full bg-slate-900 text-white p-5 rounded-2xl font-bold text-xl hover:bg-slate-800 transition flex items-center justify-center gap-2 disabled:opacity-50"
+                      className="w-full bg-slate-900 text-white p-4 lg:p-5 rounded-2xl font-bold text-base lg:text-xl hover:bg-slate-800 transition flex items-center justify-center gap-2 disabled:opacity-50"
                     >
                       Cek Jawaban <ChevronRight />
                     </button>
