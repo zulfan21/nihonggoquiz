@@ -550,9 +550,9 @@ const App = () => {
           }`}
         >
           <div>
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-3 mb-4 lg:mb-6">
               <span
-                className={`p-2 rounded-xl font-black text-xl transition-colors duration-500 ${
+                className={`p-2 lg:p-2 rounded-xl font-black text-lg lg:text-xl transition-colors duration-500 ${
                   quizMode === "selection" ||
                   quizMode === "groupSelection" ||
                   quizMode === "dictionary"
@@ -563,11 +563,12 @@ const App = () => {
               >
                 あ
               </span>
-              <h1 className="text-2xl font-bold">Nihongo Quizz</h1>
+
+              <h1 className="text-lg lg:text-2xl font-bold">Nihongo Quizz</h1>
             </div>
 
-            <p className="hidden lg:block text-white/80 text-sm leading-relaxed mb-8">
-              Latihan interaktif JLPT N5 dengan sistem adaptive learning.
+            <p className="text-white/80 text-xs lg:text-sm leading-relaxed mb-6 lg:mb-8">
+              Latihan interaktif Bahasa Jepang dengan sistem adaptive learning.
             </p>
           </div>
 
