@@ -857,7 +857,7 @@ const App = () => {
                   </form>
                 ) : (
                   /* ================= HASIL MODE ================= */
-                  <div className="max-w-xl mx-auto space-y-5">
+                  <div className="max-w-xl mx-auto space-y-5 max-h-[55vh] overflow-y-auto lg:max-h-none lg:overflow-visible pr-2">
                     <div
                       className={`p-6 rounded-3xl border-2 ${
                         feedback === "correct"
