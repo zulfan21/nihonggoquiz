@@ -14,8 +14,30 @@ export const generateQuestions = (
   let questions = [];
 
   if (categoryId === "numbers") {
+    const getWeightedNumber = () => {
+      const rand = Math.random();
+
+      // 40% → 1–99
+      if (rand < 0.4) {
+        return Math.floor(Math.random() * 99) + 1;
+      }
+
+      // 35% → 100–999
+      if (rand < 0.75) {
+        return Math.floor(Math.random() * 900) + 100;
+      }
+
+      // 15% → 1000–9999
+      if (rand < 0.9) {
+        return Math.floor(Math.random() * 9000) + 1000;
+      }
+
+      // 10% → 10000–49999
+      return Math.floor(Math.random() * 40000) + 10000;
+    };
+
     for (let i = 0; i < total; i++) {
-      const val = Math.floor(Math.random() * 50000);
+      const val = getWeightedNumber();
 
       questions.push({
         id: uuidv4(), // dynamic question

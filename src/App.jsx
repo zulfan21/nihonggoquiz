@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./index.css";
+import * as wanakana from "wanakana";
 import {
   ChevronRight,
   RefreshCw,
@@ -270,100 +271,161 @@ const App = () => {
   // =========================
   // FUZZY MATCHING - VERSI ROBUST
   // =========================
-  const checkAnswerFuzzy = (userInput, correctAnswers) => {
-    if (!userInput || !correctAnswers) {
-      console.log("DEBUG: Input atau answer kosong");
-      return false;
+  const romajiToHiragana = (input) => {
+    const map = {
+      a: "あ",
+      i: "い",
+      u: "う",
+      e: "え",
+      o: "お",
+      ka: "か",
+      ki: "き",
+      ku: "く",
+      ke: "け",
+      ko: "こ",
+      sa: "さ",
+      shi: "し",
+      su: "す",
+      se: "せ",
+      so: "そ",
+      ta: "た",
+      chi: "ち",
+      tsu: "つ",
+      te: "て",
+      to: "と",
+      na: "な",
+      ni: "に",
+      nu: "ぬ",
+      ne: "ね",
+      no: "の",
+      ha: "は",
+      hi: "ひ",
+      fu: "ふ",
+      he: "へ",
+      ho: "ほ",
+      ma: "ま",
+      mi: "み",
+      mu: "む",
+      me: "め",
+      mo: "も",
+      ya: "や",
+      yu: "ゆ",
+      yo: "よ",
+      ra: "ら",
+      ri: "り",
+      ru: "る",
+      re: "れ",
+      ro: "ろ",
+      wa: "わ",
+      wo: "を",
+      n: "ん",
+      ga: "が",
+      gi: "ぎ",
+      gu: "ぐ",
+      ge: "げ",
+      go: "ご",
+      za: "ざ",
+      ji: "じ",
+      zu: "ず",
+      ze: "ぜ",
+      zo: "ぞ",
+      da: "だ",
+      de: "で",
+      do: "ど",
+      ba: "ば",
+      bi: "び",
+      bu: "ぶ",
+      be: "べ",
+      bo: "ぼ",
+      pa: "ぱ",
+      pi: "ぴ",
+      pu: "ぷ",
+      pe: "ぺ",
+      po: "ぽ",
+      kyo: "きょ",
+      kyu: "きゅ",
+      kya: "きゃ",
+      sho: "しょ",
+      shu: "しゅ",
+      sha: "しゃ",
+      cho: "ちょ",
+      chu: "ちゅ",
+      cha: "ちゃ",
+      ryo: "りょ",
+      ryu: "りゅ",
+      rya: "りゃ",
+    };
+
+    let text = input.toLowerCase();
+    let result = "";
+
+    while (text.length > 0) {
+      let matched = false;
+
+      for (let len = 3; len > 0; len--) {
+        const chunk = text.slice(0, len);
+        if (map[chunk]) {
+          result += map[chunk];
+          text = text.slice(len);
+          matched = true;
+          break;
+        }
+      }
+
+      if (!matched) {
+        result += text[0];
+        text = text.slice(1);
+      }
     }
 
-    const normalizedInput = userInput
-      .toString()
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, " ");
+    return result;
+  };
+
+  const normalizeJapanese = (text) => {
+    if (!text) return "";
+
+    return wanakana
+      .toHiragana(text) // romaji → hiragana
+      .replace(/\s+/g, "") // hapus spasi
+      .replace(/[ー\-]/g, "") // hapus tanda panjang
+      .trim();
+  };
+
+  const checkAnswerFuzzy = (userInput, correctAnswers) => {
+    if (!userInput || !correctAnswers) return false;
+
+    const normalizedInput = normalizeJapanese(userInput);
 
     const answersArray = Array.isArray(correctAnswers)
       ? correctAnswers
       : [correctAnswers];
 
-    console.log("DEBUG: Checking:", normalizedInput);
-    console.log("DEBUG: Against:", answersArray);
-
-    const result = answersArray.some((ans) => {
+    return answersArray.some((ans) => {
       if (!ans) return false;
 
-      const normalizedAns = ans
-        .toString()
-        .toLowerCase()
-        .trim()
-        .replace(/\s+/g, " ");
+      const normalizedAnswer = normalizeJapanese(ans);
 
-      console.log(
-        `DEBUG: Comparing "${normalizedInput}" with "${normalizedAns}"`,
-      );
+      // 1️⃣ Exact match
+      if (normalizedInput === normalizedAnswer) return true;
 
-      if (normalizedAns === normalizedInput) {
-        console.log("DEBUG: -> Exact match!");
-        return true;
-      }
-
-      const ansWithoutParentheses = normalizedAns
-        .replace(/\s*\([^)]*\)/g, "")
-        .trim();
-      console.log(
-        `DEBUG: Answer without parentheses: "${ansWithoutParentheses}"`,
-      );
-
-      if (ansWithoutParentheses === normalizedInput) {
-        console.log("DEBUG: -> Match without parentheses!");
-        return true;
-      }
-
-      const inputWithoutParentheses = normalizedInput
-        .replace(/\s*\([^)]*\)/g, "")
-        .trim();
-      if (ansWithoutParentheses === inputWithoutParentheses) {
-        console.log("DEBUG: -> Match both without parentheses!");
-        return true;
-      }
-
+      // 2️⃣ Input mengandung jawaban (untuk fleksibilitas)
       if (
-        normalizedAns.startsWith(normalizedInput + " ") ||
-        normalizedAns.startsWith(normalizedInput + "(")
+        normalizedInput.includes(normalizedAnswer) &&
+        normalizedAnswer.length >= 3
       ) {
-        console.log("DEBUG: -> Input is prefix of answer!");
         return true;
       }
 
+      // 3️⃣ Jawaban mengandung input
       if (
-        normalizedInput.startsWith(ansWithoutParentheses + " ") ||
-        normalizedInput.startsWith(ansWithoutParentheses + "(")
-      ) {
-        console.log("DEBUG: -> Answer is prefix of input!");
-        return true;
-      }
-
-      if (
-        normalizedAns.includes(normalizedInput) &&
+        normalizedAnswer.includes(normalizedInput) &&
         normalizedInput.length >= 3
       ) {
-        console.log("DEBUG: -> Input contained in answer!");
-        return true;
-      }
-
-      if (
-        normalizedInput.includes(ansWithoutParentheses) &&
-        ansWithoutParentheses.length >= 3
-      ) {
-        console.log("DEBUG: -> Answer contained in input!");
         return true;
       }
 
       return false;
     });
-
-    console.log("DEBUG: Final result:", result);
-    return result;
   };
 
   // =========================
@@ -416,22 +478,27 @@ const App = () => {
   const getFilteredWords = () => {
     let filtered = fullVocabData;
 
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
+    if (searchTerm.trim() !== "") {
+      const term = searchTerm.trim().toLowerCase();
+
       filtered = filtered.filter((word) => {
         const kanji = word.reading
           .map((r) => r.kanji)
           .join("")
           .toLowerCase();
+
         const furigana = word.reading
           .map((r) => r.furigana)
           .join("")
           .toLowerCase();
-        const answers = word.answer.join(" ").toLowerCase();
+
+        const meanings = word.answer.join(" ").toLowerCase();
+
+        // Support pencarian sebagian kata
         return (
           kanji.includes(term) ||
           furigana.includes(term) ||
-          answers.includes(term)
+          meanings.includes(term)
         );
       });
     }
@@ -470,11 +537,11 @@ const App = () => {
   };
 
   return (
-    <div className="min-h-screen w-screen bg-slate-50 font-sans text-slate-900 flex items-center justify-center">
-      <div className="relative w-full max-w-7xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col lg:flex-row min-h-[550px] lg:min-h-[700px] mx-4 lg:mx-auto">
+    <div className="min-h-screen w-screen bg-slate-50 font-sans text-slate-900 lg:h-screen lg:overflow-hidden">
+      <div className="min-h-screen lg:h-screen w-full bg-white flex flex-col lg:flex-row">
         {/* SIDE PANEL */}
         <div
-          className={`lg:w-1/3 p-5 lg:p-8 text-white flex flex-col justify-between min-h-[180px] lg:min-h-full transition-colors duration-500 ${
+          className={`lg:w-[28%] p-5 lg:p-8 text-white flex flex-col justify-between min-h-[180px] lg:min-h-full lg:overflow-hidden transition-colors duration-500 ${
             quizMode === "selection" ||
             quizMode === "groupSelection" ||
             quizMode === "dictionary"
@@ -548,7 +615,7 @@ const App = () => {
         </div>
 
         {/* MAIN AREA */}
-        <div className="lg:w-2/3 p-6 lg:p-12 flex flex-col justify-center relative bg-white">
+        <div className="lg:w-[72%] p-6 lg:p-12 flex flex-col bg-white min-h-screen lg:h-full lg:min-h-0 lg:overflow-hidden">
           {/* Tombol X untuk keluar */}
           {quizMode !== "selection" && quizMode !== "groupSelection" && (
             <button
@@ -597,14 +664,14 @@ const App = () => {
           {/* SELECTION SCREEN */}
           {quizMode === "selection" && (
             <>
-              <h2 className="text-3xl font-black mb-2 text-slate-800">
+              <h2 className="text-5xl font-black mb-4 text-slate-800">
                 Mulai Latihan
               </h2>
-              <p className="text-slate-400 mb-8">
+              <p className="text-lg text-slate-400 mb-12">
                 Pilih kategori soal untuk memulai sesi 20 pertanyaan.
               </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10">
                 {categories.map((cat) => {
                   const Icon = cat.icon;
 
@@ -612,15 +679,19 @@ const App = () => {
                     <button
                       key={cat.id}
                       onClick={() => startQuiz(cat.id)}
-                      className="flex items-center gap-4 p-5 rounded-2xl border-2 border-slate-100 hover:border-indigo-500 hover:bg-indigo-50 transition-all text-left group shadow-sm hover:shadow-md"
+                      className="flex items-center gap-6 p-8 rounded-3xl border-2 border-slate-200 hover:border-indigo-500 hover:bg-indigo-50 transition-all text-left group shadow-md hover:shadow-xl"
                     >
-                      <div className={`${cat.color} p-3 rounded-xl text-white`}>
+                      <div
+                        className={`${cat.color} p-5 rounded-2xl text-white text-2xl`}
+                      >
                         <Icon />
                       </div>
 
                       <div>
-                        <h3 className="font-bold text-slate-800">{cat.name}</h3>
-                        <p className="text-xs text-slate-400">20 Soal</p>
+                        <h3 className="text-xl font-bold text-slate-800">
+                          {cat.name}
+                        </h3>
+                        <p className="text-sm text-slate-400 mt-1">20 Soal</p>
                       </div>
                     </button>
                   );
@@ -639,7 +710,7 @@ const App = () => {
                 <ArrowLeft size={20} /> Kembali
               </button>
 
-              <h2 className="text-3xl font-black mb-2 text-slate-800">
+              <h2 className="text-5xl font-black mb-4 text-slate-800">
                 Pilih Grup Kosakata
               </h2>
               <p className="text-slate-400 mb-6">
@@ -691,180 +762,185 @@ const App = () => {
 
           {/* QUIZ */}
           {quizMode === "quiz" && quizData.length > 0 && (
-            <div className="w-full">
-              <div className="text-center mb-8">
-                <div className="text-6xl lg:text-7xl font-black text-slate-800 mb-4 min-h-[140px] flex items-center justify-center">
-                  {quizData[currentIndex]?.display}
-                </div>
-
-                <div className="inline-block px-4 py-1 bg-indigo-50 text-indigo-600 rounded-full text-sm font-bold border border-indigo-100 uppercase tracking-widest">
-                  {quizData[currentIndex]?.prompt}
-                </div>
-              </div>
-
-              {!showExplanation ? (
-                <form
-                  onSubmit={handleSubmit}
-                  className="max-w-md mx-auto space-y-4"
-                >
-                  <input
-                    type="text"
-                    autoFocus
-                    value={userInput}
-                    onChange={(e) => setUserInput(e.target.value)}
-                    placeholder="Ketik jawaban..."
-                    className="w-full p-5 text-center text-2xl border-2 border-slate-200 rounded-2xl bg-slate-50 outline-none transition-all text-slate-800 placeholder:text-slate-400 focus:border-indigo-500"
-                  />
-
-                  <button
-                    type="submit"
-                    disabled={!userInput}
-                    className="w-full bg-slate-900 text-white p-5 rounded-2xl font-bold text-xl hover:bg-slate-800 transition flex items-center justify-center gap-2 disabled:opacity-50"
-                  >
-                    Cek Jawaban <ChevronRight />
-                  </button>
-                </form>
-              ) : (
-                <div className="max-w-xl mx-auto space-y-4">
-                  {/* FEEDBACK */}
-                  <div
-                    className={`p-6 rounded-3xl border-2 ${
-                      feedback === "correct"
-                        ? "bg-green-50 border-green-200"
-                        : "bg-red-50 border-red-200"
-                    }`}
-                  >
-                    <div className="flex items-start gap-4 mb-4">
-                      <div
-                        className={`p-2 rounded-full ${
-                          feedback === "correct" ? "bg-green-500" : "bg-red-500"
-                        } text-white`}
-                      >
-                        {feedback === "correct" ? (
-                          <CheckCircle2 />
-                        ) : (
-                          <XCircle />
-                        )}
-                      </div>
-
-                      <div className="flex-1">
-                        <h4
-                          className={`text-xl font-black ${
-                            feedback === "correct"
-                              ? "text-green-700"
-                              : "text-red-700"
-                          }`}
-                        >
-                          {feedback === "correct"
-                            ? "Hebat! Benar"
-                            : "Belum Tepat"}
-                        </h4>
-
-                        <p className="text-slate-600">
-                          Jawaban yang diterima:{" "}
-                          <span className="font-bold text-slate-900 capitalize">
-                            {Array.isArray(quizData[currentIndex]?.answer)
-                              ? quizData[currentIndex]?.answer.join(", ")
-                              : quizData[currentIndex]?.answer}
-                          </span>
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* PENJELASAN */}
-                    <div className="bg-white/60 p-4 rounded-xl">
-                      <div className="flex items-center gap-2 text-indigo-600 font-bold mb-1 text-xs">
-                        <Info size={14} /> PENJELASAN
-                      </div>
-                      <p className="text-slate-700 text-sm">
-                        {quizData[currentIndex]?.explanation}
-                      </p>
-                    </div>
-
-                    {/* CONVERSATION DENGAN AUDIO */}
-                    {quizData[currentIndex]?.conversation && (
-                      <div className="bg-indigo-600 p-5 rounded-xl text-white shadow-md mt-4">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-2 font-bold text-xs opacity-80 uppercase">
-                            <Type size={14} /> Contoh Percakapan
-                          </div>
-
-                          {/* TOMBOL AUDIO */}
-                          <button
-                            onClick={isPlaying ? stopAudio : playConversation}
-                            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition ${
-                              isPlaying
-                                ? "bg-red-500 hover:bg-red-600"
-                                : "bg-white/20 hover:bg-white/30"
-                            }`}
-                          >
-                            {isPlaying ? (
-                              <>
-                                <Pause size={16} /> Berhenti
-                              </>
-                            ) : (
-                              <>
-                                <Volume2 size={16} /> Dengarkan
-                              </>
-                            )}
-                          </button>
-                        </div>
-
-                        {quizData[currentIndex].conversation.japanese.map(
-                          (line, index) => (
-                            <div
-                              key={index}
-                              className={`mb-3 p-2 rounded-lg transition ${
-                                currentLine === index ? "bg-white/20" : ""
-                              }`}
-                            >
-                              <p className="text-lg leading-relaxed">
-                                <strong
-                                  className={`${
-                                    line.speaker === "A"
-                                      ? "text-yellow-300"
-                                      : "text-green-300"
-                                  }`}
-                                >
-                                  {line.speaker}:
-                                </strong>{" "}
-                                {line.reading.map((item, i) => (
-                                  <ruby key={i} className="mx-[1px]">
-                                    {item.kanji}
-                                    {item.furigana && (
-                                      <rt className="text-xs text-indigo-200 font-medium relative -top-1.5">
-                                        {item.furigana}
-                                      </rt>
-                                    )}
-                                  </ruby>
-                                ))}
-                              </p>
-                            </div>
-                          ),
-                        )}
-
-                        <div className="border-t border-white/30 mt-3 pt-3 text-sm italic">
-                          {quizData[currentIndex].conversation.translation.map(
-                            (line, index) => (
-                              <p key={index}>{line}</p>
-                            ),
-                          )}
-                        </div>
-                      </div>
-                    )}
+            <div className="w-full flex-1 flex justify-center lg:items-center items-start pt-10 lg:pt-0">
+              <div className="w-full max-w-3xl px-4">
+                {/* SOAL */}
+                <div className="text-center mb-10">
+                  <div className="text-6xl lg:text-7xl font-black text-slate-800 mb-6 min-h-[140px] flex items-center justify-center">
+                    {quizData[currentIndex]?.display}
                   </div>
 
-                  <button
-                    onClick={handleNext}
-                    className="w-full bg-slate-900 text-white p-5 rounded-2xl font-bold text-xl hover:bg-slate-800 transition flex items-center justify-center gap-2"
-                  >
-                    {currentIndex < quizData.length - 1
-                      ? "Soal Berikutnya"
-                      : "Lihat Hasil Akhir"}
-                    <ChevronRight />
-                  </button>
+                  <div className="inline-block px-4 py-1 bg-indigo-50 text-indigo-600 rounded-full text-sm font-bold border border-indigo-100 uppercase tracking-widest">
+                    {quizData[currentIndex]?.prompt}
+                  </div>
                 </div>
-              )}
+
+                {/* ================= INPUT MODE ================= */}
+                {!showExplanation ? (
+                  <form
+                    onSubmit={handleSubmit}
+                    className="max-w-md mx-auto space-y-5"
+                  >
+                    <input
+                      type="text"
+                      autoFocus
+                      value={userInput}
+                      onChange={(e) => setUserInput(e.target.value)}
+                      placeholder="Ketik jawaban..."
+                      className="w-full p-5 text-center text-2xl border-2 border-slate-200 rounded-2xl bg-slate-50 outline-none transition-all text-slate-800 placeholder:text-slate-400 focus:border-indigo-500"
+                    />
+
+                    <button
+                      type="submit"
+                      disabled={!userInput}
+                      className="w-full bg-slate-900 text-white p-5 rounded-2xl font-bold text-xl hover:bg-slate-800 transition flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                      Cek Jawaban <ChevronRight />
+                    </button>
+                  </form>
+                ) : (
+                  /* ================= HASIL MODE ================= */
+                  <div className="max-w-xl mx-auto space-y-5">
+                    <div
+                      className={`p-6 rounded-3xl border-2 ${
+                        feedback === "correct"
+                          ? "bg-green-50 border-green-200"
+                          : "bg-red-50 border-red-200"
+                      }`}
+                    >
+                      <div className="flex items-start gap-4 mb-4">
+                        <div
+                          className={`p-2 rounded-full ${
+                            feedback === "correct"
+                              ? "bg-green-500"
+                              : "bg-red-500"
+                          } text-white`}
+                        >
+                          {feedback === "correct" ? (
+                            <CheckCircle2 />
+                          ) : (
+                            <XCircle />
+                          )}
+                        </div>
+
+                        <div className="flex-1">
+                          <h4
+                            className={`text-xl font-black ${
+                              feedback === "correct"
+                                ? "text-green-700"
+                                : "text-red-700"
+                            }`}
+                          >
+                            {feedback === "correct"
+                              ? "Hebat! Benar"
+                              : "Belum Tepat"}
+                          </h4>
+
+                          <p className="text-slate-600">
+                            Jawaban yang diterima:{" "}
+                            <span className="font-bold text-slate-900 capitalize">
+                              {Array.isArray(quizData[currentIndex]?.answer)
+                                ? quizData[currentIndex]?.answer.join(", ")
+                                : quizData[currentIndex]?.answer}
+                            </span>
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* PENJELASAN */}
+                      <div className="bg-white/60 p-4 rounded-xl">
+                        <div className="flex items-center gap-2 text-indigo-600 font-bold mb-1 text-xs">
+                          <Info size={14} /> PENJELASAN
+                        </div>
+                        <p className="text-slate-700 text-sm">
+                          {quizData[currentIndex]?.explanation}
+                        </p>
+                      </div>
+
+                      {/* CONVERSATION */}
+                      {quizData[currentIndex]?.conversation && (
+                        <div className="bg-indigo-600 p-5 rounded-xl text-white shadow-md mt-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-2 font-bold text-xs opacity-80 uppercase">
+                              <Type size={14} /> Contoh Percakapan
+                            </div>
+
+                            <button
+                              onClick={isPlaying ? stopAudio : playConversation}
+                              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition ${
+                                isPlaying
+                                  ? "bg-red-500 hover:bg-red-600"
+                                  : "bg-white/20 hover:bg-white/30"
+                              }`}
+                            >
+                              {isPlaying ? (
+                                <>
+                                  <Pause size={16} /> Berhenti
+                                </>
+                              ) : (
+                                <>
+                                  <Volume2 size={16} /> Dengarkan
+                                </>
+                              )}
+                            </button>
+                          </div>
+
+                          {quizData[currentIndex].conversation.japanese.map(
+                            (line, index) => (
+                              <div
+                                key={index}
+                                className={`mb-3 p-2 rounded-lg transition ${
+                                  currentLine === index ? "bg-white/20" : ""
+                                }`}
+                              >
+                                <p className="text-lg leading-relaxed">
+                                  <strong
+                                    className={
+                                      line.speaker === "A"
+                                        ? "text-yellow-300"
+                                        : "text-green-300"
+                                    }
+                                  >
+                                    {line.speaker}:
+                                  </strong>{" "}
+                                  {line.reading.map((item, i) => (
+                                    <ruby key={i} className="mx-[1px]">
+                                      {item.kanji}
+                                      {item.furigana && (
+                                        <rt className="text-xs text-indigo-200 font-medium relative -top-1.5">
+                                          {item.furigana}
+                                        </rt>
+                                      )}
+                                    </ruby>
+                                  ))}
+                                </p>
+                              </div>
+                            ),
+                          )}
+
+                          <div className="border-t border-white/30 mt-3 pt-3 text-sm italic">
+                            {quizData[
+                              currentIndex
+                            ].conversation.translation.map((line, index) => (
+                              <p key={index}>{line}</p>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <button
+                      onClick={handleNext}
+                      className="w-full bg-slate-900 text-white p-5 rounded-2xl font-bold text-xl hover:bg-slate-800 transition flex items-center justify-center gap-2"
+                    >
+                      {currentIndex < quizData.length - 1
+                        ? "Soal Berikutnya"
+                        : "Lihat Hasil Akhir"}
+                      <ChevronRight />
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -898,13 +974,13 @@ const App = () => {
 
           {/* DICTIONARY - VERSI BARU YANG LEBIH MENARIK */}
           {quizMode === "dictionary" && (
-            <div className="w-full flex flex-col h-[550px]">
+            <div className="w-full flex flex-col min-h-screen lg:h-full lg:min-h-0 lg:flex-1">
               {/* Search & Filter */}
-              <div className="flex flex-col sm:flex-row gap-3 mb-4 flex-shrink-0">
+              <div className="flex flex-col sm:flex-row gap-4 mb-6 flex-shrink-0 w-full">
                 {/* Search */}
-                <div className="relative flex-1">
+                <div className="relative flex-1 min-w-0">
                   <Search
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
                     size={18}
                   />
                   <input
@@ -912,7 +988,7 @@ const App = () => {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Cari kata, kanji, atau arti..."
-                    className="w-full pl-10 pr-9 py-3 border-2 border-slate-200 rounded-xl text-sm focus:border-indigo-500 focus:outline-none transition"
+                    className="w-full pl-10 pr-9 py-3 border border-slate-300 rounded-2xl text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition"
                   />
                   {searchTerm && (
                     <button
@@ -977,7 +1053,7 @@ const App = () => {
               </div>
 
               {/* Words Grid */}
-              <div className="flex-1 overflow-y-auto pr-2 space-y-2 hide-scrollbar pb-2">
+              <div className="mt-2 lg:flex-1 lg:min-h-0 lg:overflow-y-auto pr-4 space-y-4 pb-6">
                 {getFilteredWords().length === 0 ? (
                   <div className="text-center py-10">
                     <div className="inline-flex p-5 bg-slate-100 rounded-full text-slate-400 mb-3">
@@ -991,17 +1067,17 @@ const App = () => {
                     </p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 gap-2">
+                  <div className="flex-1 min-h-0 space-y-4 pb-20 lg:pb-6 lg:overflow-y-auto pr-4">
                     {getFilteredWords().map((word) => (
                       <div
                         key={word.id}
-                        className="group bg-white border-2 border-slate-100 hover:border-indigo-300 rounded-xl p-4 transition-all duration-300 hover:shadow-md"
+                        className="group bg-white border border-slate-200 hover:border-indigo-400 rounded-2xl p-6 transition-all duration-300 hover:shadow-lg hover:translate-y-1"
                       >
                         <div className="flex items-start justify-between">
                           {/* Left: Kanji & Furigana */}
                           <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <div className="text-2xl font-black text-slate-800 flex flex-wrap">
+                            <div className="flex items-start gap-2 mb-2">
+                              <div className="text-3xl lg:text-4xl font-black text-slate-900 flex flex-wrap items-baseline leading-none">
                                 {word.reading?.map((item, index) => (
                                   <ruby
                                     key={index}
@@ -1029,7 +1105,7 @@ const App = () => {
 
                             <div className="flex items-center gap-2 flex-wrap">
                               <span
-                                className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${getGroupColor(word.group)}`}
+                                className={`px-3 py-1 rounded-full text-xs font-semibold border ${getGroupColor(word.group)}`}
                               >
                                 {getGroupLabel(word.group)}
                               </span>
@@ -1072,8 +1148,8 @@ const App = () => {
                                   <Type size={12} /> Contoh Percakapan
                                 </p>
                                 {word.conversation.japanese.map((line, idx) => (
-                                  <div key={idx} className="mb-2 last:mb-0">
-                                    <p className="text-sm text-slate-800">
+                                  <div key={idx} className="mb-4 last:mb-0">
+                                    <p className="text-lg leading-relaxed text-slate-800">
                                       <strong
                                         className={
                                           line.speaker === "A"
@@ -1084,10 +1160,18 @@ const App = () => {
                                         {line.speaker}:
                                       </strong>{" "}
                                       {line.reading.map((item, i) => (
-                                        <span key={i}>{item.kanji}</span>
+                                        <ruby key={i} className="mx-[1px]">
+                                          {item.kanji}
+                                          {item.furigana && (
+                                            <rt className="text-xs text-indigo-500 relative -top-1 font-medium">
+                                              {item.furigana}
+                                            </rt>
+                                          )}
+                                        </ruby>
                                       ))}
                                     </p>
-                                    <p className="text-xs text-slate-500 italic mt-0.5">
+
+                                    <p className="text-sm text-slate-500 italic mt-1">
                                       {word.conversation.translation[idx]}
                                     </p>
                                   </div>

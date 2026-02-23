@@ -1,41 +1,92 @@
+// numberUtils.js
+
+const ones = [
+  "", "いち", "に", "さん", "よん", "ご",
+  "ろく", "なな", "はち", "きゅう"
+];
+
+const specialHundreds = {
+  300: "さんびゃく",
+  600: "ろっぴゃく",
+  800: "はっぴゃく"
+};
+
+const specialThousands = {
+  3000: "さんぜん",
+  8000: "はっせん"
+};
+
+const convertBelow10000 = (num) => {
+  let result = "";
+
+  const thousands = Math.floor(num / 1000);
+  const hundreds = Math.floor((num % 1000) / 100);
+  const tens = Math.floor((num % 100) / 10);
+  const units = num % 10;
+
+  // Thousands
+  if (thousands > 0) {
+    const value = thousands * 1000;
+
+    if (specialThousands[value]) {
+      result += specialThousands[value];
+    } else if (thousands === 1) {
+      result += "せん";
+    } else {
+      result += ones[thousands] + "せん";
+    }
+  }
+
+  // Hundreds
+  if (hundreds > 0) {
+    const value = hundreds * 100;
+
+    if (specialHundreds[value]) {
+      result += specialHundreds[value];
+    } else if (hundreds === 1) {
+      result += "ひゃく";
+    } else {
+      result += ones[hundreds] + "ひゃく";
+    }
+  }
+
+  // Tens
+  if (tens > 0) {
+    if (tens === 1) {
+      result += "じゅう";
+    } else {
+      result += ones[tens] + "じゅう";
+    }
+  }
+
+  // Units
+  if (units > 0) {
+    result += ones[units];
+  }
+
+  return result;
+};
+
 export const numberToHiragana = (num) => {
-  const units = ["", "いち", "に", "さん", "よん", "ご", "ろく", "なな", "はち", "きゅう"];
-  if (num === 0) return "れい";
+  if (num === 0) return "ゼロ";
 
   let result = "";
-  let n = num;
 
-  if (n >= 10000) {
-    const man = Math.floor(n / 10000);
-    result += (man === 1 ? "" : units[man]) + "まん";
-    n %= 10000;
+  const man = Math.floor(num / 10000);
+  const remainder = num % 10000;
+
+  // まん (10,000)
+  if (man > 0) {
+    if (man === 1) {
+      result += "いちまん";
+    } else {
+      result += convertBelow10000(man) + "まん";
+    }
   }
 
-  if (n >= 1000) {
-    const sen = Math.floor(n / 1000);
-    if (sen === 1) result += "せん";
-    else if (sen === 3) result += "さんぜん";
-    else if (sen === 8) result += "はっせん";
-    else result += units[sen] + "せん";
-    n %= 1000;
+  if (remainder > 0) {
+    result += convertBelow10000(remainder);
   }
-
-  if (n >= 100) {
-    const hyaku = Math.floor(n / 100);
-    if (hyaku === 3) result += "さんびゃく";
-    else if (hyaku === 6) result += "ろっぴゃく";
-    else if (hyaku === 8) result += "はっぴゃく";
-    else result += (hyaku === 1 ? "" : units[hyaku]) + "ひゃく";
-    n %= 100;
-  }
-
-  if (n >= 10) {
-    const juu = Math.floor(n / 10);
-    result += (juu === 1 ? "" : units[juu]) + "じゅう";
-    n %= 10;
-  }
-
-  if (n > 0) result += units[n];
 
   return result;
 };
