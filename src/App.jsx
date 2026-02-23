@@ -567,7 +567,7 @@ const App = () => {
               <h1 className="text-lg lg:text-2xl font-bold">Nihongo Quizz</h1>
             </div>
 
-            <p className="text-white/80 text-xs lg:text-sm leading-relaxed mb-6 lg:mb-8">
+            <p className="hidden lg:block text-white/80 text-sm leading-relaxed mb-8">
               Latihan interaktif Bahasa Jepang dengan sistem adaptive learning.
             </p>
           </div>
