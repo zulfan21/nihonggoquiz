@@ -915,7 +915,7 @@ const App = () => {
                       </div>
 
                       {/* CONVERSATION */}
-                      {quizData[currentIndex]?.conversation && (
+                      {/* {quizData[currentIndex]?.conversation && (
                         <div className="bg-indigo-600 p-5 rounded-xl text-white shadow-md mt-4">
                           <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center gap-2 font-bold text-xs opacity-80 uppercase">
@@ -983,7 +983,7 @@ const App = () => {
                             ))}
                           </div>
                         </div>
-                      )}
+                      )} */}
                     </div>
 
                     <button
@@ -1201,9 +1201,27 @@ const App = () => {
 
                             {word.conversation && (
                               <div className="bg-indigo-50 rounded-lg p-3">
-                                <p className="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                                  <Type size={12} /> Contoh Percakapan
-                                </p>
+                                <div className="flex items-center justify-between mb-2">
+                                  <p className="text-xs font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-1.5">
+                                    <Type size={12} /> Contoh Percakapan
+                                  </p>
+
+                                  <button
+                                    onClick={() => {
+                                      const lines = word.conversation.japanese
+                                        .map((line) =>
+                                          getTextFromReading(line.reading),
+                                        )
+                                        .join("。");
+                                      speakText(lines);
+                                    }}
+                                    className="flex items-center gap-1 text-xs bg-indigo-600 text-white px-3 py-1 rounded-lg hover:bg-indigo-700 transition"
+                                  >
+                                    <Volume2 size={14} />
+                                    Dengarkan
+                                  </button>
+                                </div>
+                                
                                 {word.conversation.japanese.map((line, idx) => (
                                   <div key={idx} className="mb-4 last:mb-0">
                                     <p className="text-lg leading-relaxed text-slate-800">
