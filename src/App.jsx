@@ -819,7 +819,7 @@ const App = () => {
 
           {/* QUIZ */}
           {quizMode === "quiz" && quizData.length > 0 && (
-            <div className="w-full flex-1 flex justify-center lg:items-center items-start pt-6 lg:pt-0">
+            <div className="w-full flex-1 flex justify-center lg:items-center items-start pt-6 lg:pt-0 overflow-hidden">
               <div className="w-full max-w-3xl px-4">
                 {/* SOAL */}
                 <div className="text-center mb-10">
@@ -857,7 +857,7 @@ const App = () => {
                   </form>
                 ) : (
                   /* ================= HASIL MODE ================= */
-                  <div className="max-w-xl mx-auto space-y-5 max-h-[55vh] overflow-y-auto lg:max-h-none lg:overflow-visible pr-2">
+                  <div className="max-w-xl mx-auto space-y-4 flex flex-col h-full">
                     <div
                       className={`p-6 rounded-3xl border-2 ${
                         feedback === "correct"
@@ -988,7 +988,7 @@ const App = () => {
 
                     <button
                       onClick={handleNext}
-                      className="w-full bg-slate-900 text-white p-5 rounded-2xl font-bold text-xl hover:bg-slate-800 transition flex items-center justify-center gap-2"
+                      className="w-full bg-slate-900 text-white p-4 rounded-2xl font-bold text-lg hover:bg-slate-800 transition flex items-center justify-center gap-2 mt-auto"
                     >
                       {currentIndex < quizData.length - 1
                         ? "Soal Berikutnya"
