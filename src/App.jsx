@@ -487,26 +487,33 @@ const App = () => {
   // =========================
   // DICTIONARY FILTER & SEARCH
   // =========================
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    setIsReady(true);
+  }, []);
+
   const getFilteredWords = () => {
-    let filtered = fullVocabData;
+    if (!fullVocabData || fullVocabData.length === 0) return [];
 
-    if (searchTerm.trim() !== "") {
-      const term = searchTerm.trim().toLowerCase();
+    let filtered = [...fullVocabData];
 
+    const term = searchTerm.trim().toLowerCase();
+
+    if (term !== "") {
       filtered = filtered.filter((word) => {
         const kanji = word.reading
-          .map((r) => r.kanji)
+          ?.map((r) => r.kanji || "")
           .join("")
           .toLowerCase();
 
         const furigana = word.reading
-          .map((r) => r.furigana)
+          ?.map((r) => r.furigana || "")
           .join("")
           .toLowerCase();
 
-        const meanings = word.answer.join(" ").toLowerCase();
+        const meanings = (word.answer || []).join(" ").toLowerCase();
 
-        // Support pencarian sebagian kata
         return (
           kanji.includes(term) ||
           furigana.includes(term) ||
@@ -571,26 +578,34 @@ const App = () => {
               : currentCategory?.color
           }`}
         >
-          <div>
-            <div className="flex items-center gap-3 mb-3 lg:mb-6">
-              <span
-                className={`p-2 lg:p-2 rounded-xl font-black text-lg lg:text-xl transition-colors duration-500 ${
-                  quizMode === "selection" ||
-                  quizMode === "groupSelection" ||
-                  quizMode === "dictionary"
-                    ? "bg-white text-indigo-600"
-                    : "bg-white " +
-                      currentCategory?.color.replace("bg-", "text-")
-                }`}
-              >
-                あ
-              </span>
-              <h1 className="text-lg lg:text-2xl font-bold">Nihongo Quizz</h1>
-            </div>
+          <div className="relative mb-4 lg:mb-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {/* Logo */}
+                <div
+                  className={`w-10 h-10 lg:w-14 lg:h-14 rounded-2xl flex items-center justify-center shadow-md transition-colors duration-500 ${
+                    quizMode === "selection" ||
+                    quizMode === "groupSelection" ||
+                    quizMode === "dictionary"
+                      ? "bg-white text-indigo-600"
+                      : "bg-white " +
+                        currentCategory?.color.replace("bg-", "text-")
+                  }`}
+                >
+                  <span className="text-lg lg:text-2xl font-black">あ</span>
+                </div>
 
-            <p className="hidden lg:block text-white/100 text-sm leading-relaxed mb-8">
-              Latihan interaktif Bahasa Jepang dengan sistem adaptive learning.
-            </p>
+                {/* Title */}
+                <div className="leading-tight">
+                  <h1 className="text-lg lg:text-3xl font-black tracking-tight">
+                    Nihongo Quizu
+                  </h1>
+                  <p className="text-[11px] lg:text-sm text-white/90">
+                    Latihan Bahasa Jepang
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
           {quizMode === "quiz" && (
@@ -622,10 +637,11 @@ const App = () => {
           )}
 
           {quizMode === "dictionary" && (
-            <div className="bg-black/10 p-6 rounded-2xl">
+            <div className="bg-black/10 p-3 lg:p-6 rounded-2xl">
               <p className="text-xs uppercase tracking-widest opacity-60 mb-1">
                 Total Kosakata
               </p>
+              <div className="flex justify-between items-end mb-2"></div>
               <div className="text-3xl font-black">{fullVocabData.length}</div>
               <p className="text-xs opacity-60 mt-1">kata tersedia</p>
             </div>
@@ -655,7 +671,23 @@ const App = () => {
           {quizMode !== "selection" && quizMode !== "groupSelection" && (
             <button
               onClick={() => setShowConfirm(true)}
-              className="absolute top-6 right-6 bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-sm"
+              className="
+                absolute 
+                top-3 right-3 
+                lg:top-6 lg:right-6
+                w-8 h-8 
+                lg:w-10 lg:h-10
+                rounded-full 
+                bg-white/70 
+                backdrop-blur-md
+                border border-white/40
+                text-slate-600 
+                hover:text-slate-900
+                hover:bg-white
+                flex items-center justify-center 
+                transition-all duration-200
+                shadow-sm
+              "
             >
               ✕
             </button>
@@ -666,11 +698,15 @@ const App = () => {
             <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-50">
               <div className="bg-white rounded-2xl shadow-xl p-8 w-[90%] max-w-sm text-center">
                 <h3 className="text-xl font-bold text-slate-800 mb-3">
-                  Keluar dari latihan?
+                  {quizMode === "dictionary"
+                    ? "Tutup Kamus?"
+                    : "Keluar dari latihan?"}
                 </h3>
 
                 <p className="text-slate-500 mb-6 text-sm">
-                  Progress kamu akan hilang.
+                  {quizMode === "dictionary"
+                    ? "Kamu akan kembali ke menu utama."
+                    : "Progress kamu akan hilang."}
                 </p>
 
                 <div className="flex gap-3">
@@ -698,14 +734,23 @@ const App = () => {
 
           {/* SELECTION SCREEN */}
           {quizMode === "selection" && (
-            <div className="w-full max-w-5xl mx-auto">
+            <div
+              className="
+                w-full max-w-5xl mx-auto
+                flex flex-col
+                justify-start
+                lg:justify-center
+                min-h-full
+              "
+            >
               {/* TITLE */}
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-3 lg:mb-4 text-slate-800">
-                Mulai Latihan
+                Selamat Datang ≽^•⩊•^≼
               </h2>
 
               <p className="text-sm sm:text-base lg:text-lg text-slate-400 mb-8 lg:mb-12">
-                Pilih kategori soal untuk memulai sesi 20 pertanyaan.
+                Nihongo Quizu ada untuk membantu kamu berlatih pengetahuan dasar
+                bahasa Jepang 
               </p>
 
               {/* CARD LIST */}
@@ -718,27 +763,27 @@ const App = () => {
                       key={cat.id}
                       onClick={() => startQuiz(cat.id)}
                       className="
-              flex items-center gap-4 sm:gap-6
-              p-5 sm:p-6 lg:p-8
-              rounded-2xl lg:rounded-3xl
-              border border-slate-200
-              hover:border-indigo-500
-              hover:bg-indigo-50
-              transition-all
-              text-left
-              shadow-sm hover:shadow-xl
-              bg-white
-            "
+                        flex items-center gap-4 sm:gap-6
+                        p-5 sm:p-6 lg:p-8
+                        rounded-2xl lg:rounded-3xl
+                        border border-slate-200
+                        hover:border-indigo-500
+                        hover:bg-indigo-50
+                        transition-all
+                        text-left
+                        shadow-sm hover:shadow-xl
+                        bg-white
+                      "
                     >
                       {/* ICON */}
                       <div
                         className={`
-                ${cat.color}
-                p-4 sm:p-5
-                rounded-xl sm:rounded-2xl
-                text-white
-                text-xl sm:text-2xl
-              `}
+                          ${cat.color}
+                          p-4 sm:p-5
+                          rounded-xl sm:rounded-2xl
+                          text-white
+                          text-xl sm:text-2xl
+                        `}
                       >
                         <Icon />
                       </div>
@@ -749,7 +794,7 @@ const App = () => {
                           {cat.name}
                         </h3>
                         <p className="text-xs sm:text-sm text-slate-400 mt-1">
-                          20 Soal
+                          {cat.label}
                         </p>
                       </div>
                     </button>
@@ -1049,7 +1094,9 @@ const App = () => {
                   </h2>
 
                   {/* Score */}
-                  <div className={`text-5xl lg:text-6xl font-black mb-2 ${color}`}>
+                  <div
+                    className={`text-5xl lg:text-6xl font-black mb-2 ${color}`}
+                  >
                     {score} / 20
                   </div>
 
@@ -1090,8 +1137,8 @@ const App = () => {
             })()}
 
           {/* DICTIONARY - VERSI BARU YANG LEBIH MENARIK */}
-          {quizMode === "dictionary" && (
-            <div className="w-full flex flex-col min-h-screen lg:h-full lg:min-h-0 lg:flex-1">
+          {quizMode === "dictionary" && isReady && (
+            <div className="w-full flex flex-col min-h-screen lg:h-full lg:min-h-0 lg:flex-1 lg:pt-16">
               {/* Search & Filter */}
               <div className="flex flex-col sm:flex-row gap-4 mb-6 flex-shrink-0 w-full">
                 {/* Search */}
@@ -1115,30 +1162,6 @@ const App = () => {
                       <X size={16} />
                     </button>
                   )}
-                </div>
-
-                {/* Filter Dropdown */}
-                <div className="relative">
-                  <Filter
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                    size={16}
-                  />
-                  <select
-                    value={selectedFilter}
-                    onChange={(e) => setSelectedFilter(e.target.value)}
-                    className="pl-9 pr-8 py-3 border-2 border-slate-200 rounded-xl text-sm focus:border-indigo-500 focus:outline-none appearance-none bg-white cursor-pointer min-w-[140px]"
-                  >
-                    <option value="all">Semua Grup</option>
-                    {Object.keys(groupedVocab).map((group) => (
-                      <option key={group} value={group}>
-                        {getGroupLabel(group)}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronRight
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 rotate-90 pointer-events-none"
-                    size={14}
-                  />
                 </div>
               </div>
 
@@ -1170,7 +1193,7 @@ const App = () => {
               </div>
 
               {/* Words Grid */}
-              <div className="mt-2 lg:flex-1 lg:min-h-0 lg:overflow-y-auto pr-4 space-y-4 pb-6">
+              <div className="mt-2 pl-3 pr-2 lg:pl-0 lg:flex-1 lg:min-h-0 lg:overflow-y-auto space-y-4 pb-6">
                 {getFilteredWords().length === 0 ? (
                   <div className="text-center py-10">
                     <div className="inline-flex p-5 bg-slate-100 rounded-full text-slate-400 mb-3">
@@ -1188,7 +1211,7 @@ const App = () => {
                     {getFilteredWords().map((word) => (
                       <div
                         key={word.id}
-                        className="group bg-white border border-slate-200 hover:border-indigo-400 rounded-2xl p-6 transition-all duration-300 hover:shadow-lg hover:translate-y-1"
+                        className="group bg-white border border-slate-200 hover:border-indigo-400 rounded-2xl p-4 sm:p-5 lg:p-6 transition-all duration-300 hover:shadow-lg"
                       >
                         <div className="flex items-start justify-between">
                           {/* Left: Kanji & Furigana */}

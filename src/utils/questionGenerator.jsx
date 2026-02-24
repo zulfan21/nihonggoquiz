@@ -42,7 +42,7 @@ export const generateQuestions = (
       questions.push({
         id: uuidv4(), // dynamic question
         display: val.toLocaleString(),
-        prompt: "Tuliskan dalam Hiragana",
+        prompt: "Tuliskan dalam Hiragana atau Romaji",
         answer: [numberToHiragana(val)],
         explanation:
           "Gunakan unit まん (10.000), せん (1.000), ひゃく (100), じゅう (10).",
@@ -50,16 +50,43 @@ export const generateQuestions = (
     }
   } else if (categoryId === "time") {
     for (let i = 0; i < total; i++) {
-      const h = Math.floor(Math.random() * 12) + 1;
-      const m = [0, 5, 10, 15, 30][Math.floor(Math.random() * 5)];
+      const hour12 = Math.floor(Math.random() * 12) + 1;
+      const minuteOptions = [0, 5, 10, 15, 30];
+      const m = minuteOptions[Math.floor(Math.random() * minuteOptions.length)];
+
+      const hiraganaTime = formatTimeQuiz(hour12, m);
+
+      // 🔥 Mode campur
+      const modes = [
+        { label: "AM", jp: "ごぜん" },
+        { label: "PM", jp: "ごご" },
+        { label: "Pagi", jp: "あさ" },
+        { label: "Siang", jp: "ひる" },
+        { label: "Malam", jp: "よる" },
+        { label: "", jp: "" }, // tanpa keterangan
+      ];
+
+      const randomMode = modes[Math.floor(Math.random() * modes.length)];
+
+      const displayLabel = randomMode.label
+        ? `${hour12}:${m.toString().padStart(2, "0")} ${randomMode.label}`
+        : `${hour12}:${m.toString().padStart(2, "0")}`;
+
+      const fullAnswer = randomMode.jp
+        ? `${randomMode.jp}${hiraganaTime}`
+        : hiraganaTime;
 
       questions.push({
-        id: uuidv4(), // dynamic question
-        display: `${h}:${m.toString().padStart(2, "0")}`,
-        prompt: "Sebutkan dalam Hiragana",
-        answer: [formatTimeQuiz(h, m)],
+        id: uuidv4(),
+
+        display: displayLabel,
+
+        prompt: "Tuliskan dalam Hiragana atau Romaji",
+
+        answer: [fullAnswer, fullAnswer.replace(/\s+/g, "")],
+
         explanation:
-          "Jam menggunakan じ, menit menggunakan ふん / ぷん. 30 menit = はん.",
+          "AM = ごぜん, PM = ごご, pagi = あさ, siang = ひる, malam = よる. Jam menggunakan じ, menit menggunakan ふん / ぷん.",
       });
     }
   } else if (categoryId === "vocabulary") {
@@ -102,7 +129,7 @@ export const generateQuestions = (
 
         display: `¥${price.toLocaleString()}`,
 
-        prompt: "Tuliskan harga dalam Hiragana",
+        prompt: "Tuliskan harga dalam Hiragana atau Romaji",
 
         answer: [`${numberToHiragana(price)}えん`],
 
@@ -126,7 +153,7 @@ export const generateQuestions = (
           </div>
         ),
 
-        prompt: "Tuliskan dalam Hiragana",
+        prompt: "Tuliskan dalam Hiragana atau Romaji",
         answer: [formatJapaneseDate(year, month, day)],
         explanation:
           "Tahun = ねん, Bulan = がつ, Hari = にち (beberapa hari memiliki bacaan khusus).",

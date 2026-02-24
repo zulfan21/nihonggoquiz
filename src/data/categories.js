@@ -14,6 +14,7 @@ export const categories = [
     icon: Hash,
     color: "bg-blue-500",
     inputType: "hiragana",
+    label:"Berlatih membaca angka",
   },
   {
     id: "vocabulary",
@@ -21,6 +22,7 @@ export const categories = [
     icon: BookOpen,
     color: "bg-green-500",
     inputType: "indonesia",
+    label:"Berlatih mengingat kosakata",
   },
   {
     id: "shopping",
@@ -28,6 +30,7 @@ export const categories = [
     icon: ShoppingCart,
     color: "bg-orange-500",
     inputType: "hiragana",
+    label:"Berlatih membaca harga barang",
   },
   {
     id: "time",
@@ -35,12 +38,7 @@ export const categories = [
     icon: Clock,
     color: "bg-purple-500",
     inputType: "hiragana",
-  },
-  {
-    id: "dictionary",
-    name: "Kamus",
-    icon: MessageCircle,
-    color: "bg-pink-500",
+    label:"Berlatih membaca jam dan waktu",
   },
   {
     id: "date",
@@ -48,5 +46,13 @@ export const categories = [
     icon: Calendar,
     color: "bg-rose-500",
     inputType: "hiragana",
+    label:"Berlatih membaca tanggal",
+  },
+  {
+    id: "dictionary",
+    name: "Kamus",
+    icon: MessageCircle,
+    color: "bg-pink-500",
+    label:"Kumpulan kosakata",
   },
 ];
