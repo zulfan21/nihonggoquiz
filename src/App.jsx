@@ -40,6 +40,12 @@ const App = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentLine, setCurrentLine] = useState(null);
   const [voices, setVoices] = useState([]);
+  const normalizeForSpeech = (text) => {
+    return text.replace(/は/g, "は");
+  };
+  const forceKatakanaForSpeech = (text) => {
+    return wanakana.toKatakana(text);
+  };
 
   // State untuk kamus
   const [searchTerm, setSearchTerm] = useState("");
@@ -97,13 +103,12 @@ const App = () => {
   const getTextFromReading = (reading) => {
     return reading
       .map((item) => {
-        // Jika ada furigana → gunakan
+        // Jika ada furigana → SELALU pakai
         if (item.furigana && item.furigana.trim() !== "") {
           return item.furigana;
         }
 
-        // Jika tidak ada furigana → gunakan teks asli
-        // (hiragana / katakana / tanda baca)
+        // Jika tidak ada furigana → pakai kanji asli
         return item.kanji;
       })
       .join("");
@@ -111,9 +116,12 @@ const App = () => {
 
   const speakText = (text) => {
     if (!window.speechSynthesis) return;
+
     window.speechSynthesis.cancel();
 
-    const utterance = new SpeechSynthesisUtterance(text);
+    const safeText = forceKatakanaForSpeech(text);
+
+    const utterance = new SpeechSynthesisUtterance(safeText);
     utterance.lang = "ja-JP";
     utterance.rate = 0.8;
 
@@ -122,12 +130,9 @@ const App = () => {
       utterance.voice = japaneseVoices[0];
     }
 
-    utterance.onstart = () => setIsPlaying(true);
-    utterance.onend = () => setIsPlaying(false);
-    utterance.onerror = () => setIsPlaying(false);
-
     window.speechSynthesis.speak(utterance);
   };
+
   const getJapaneseVoices = () => {
     return voices.filter((v) => v.lang === "ja-JP" || v.lang.includes("ja"));
   };
@@ -1141,7 +1146,7 @@ const App = () => {
                                     className="mx-[1px] align-bottom"
                                   >
                                     {item.kanji}
-                                    {item.furigana && (
+                                    {item.furigana && !["は", "へ", "を"].includes(item.kanji) && (
                                       <rt className="text-indigo-500 text-xs relative -top-1.5 font-medium">
                                         {item.furigana}
                                       </rt>
@@ -1207,21 +1212,23 @@ const App = () => {
                                   </p>
 
                                   <button
-                                    onClick={() => {
-                                      const lines = word.conversation.japanese
-                                        .map((line) =>
-                                          getTextFromReading(line.reading),
-                                        )
-                                        .join("。");
-                                      speakText(lines);
-                                    }}
-                                    className="flex items-center gap-1 text-xs bg-indigo-600 text-white px-3 py-1 rounded-lg hover:bg-indigo-700 transition"
+                                    onClick={() =>
+                                      speakText(
+                                        word.conversation.japanese
+                                          .map((line) =>
+                                            line.reading
+                                              .map((r) => r.furigana || r.kanji)
+                                              .join(""),
+                                          )
+                                          .join(" "),
+                                      )
+                                    }
+                                    className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-lg transition"
                                   >
-                                    <Volume2 size={14} />
-                                    Dengarkan
+                                    <Volume2 size={14} /> Dengarkan
                                   </button>
                                 </div>
-                                
+
                                 {word.conversation.japanese.map((line, idx) => (
                                   <div key={idx} className="mb-4 last:mb-0">
                                     <p className="text-lg leading-relaxed text-slate-800">
@@ -1237,7 +1244,7 @@ const App = () => {
                                       {line.reading.map((item, i) => (
                                         <ruby key={i} className="mx-[1px]">
                                           {item.kanji}
-                                          {item.furigana && (
+                                          {item.furigana && !["は", "へ", "を"].includes(item.kanji) && (
                                             <rt className="text-xs text-indigo-500 relative -top-1 font-medium">
                                               {item.furigana}
                                             </rt>
