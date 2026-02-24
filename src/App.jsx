@@ -399,37 +399,44 @@ const App = () => {
   const checkAnswerFuzzy = (userInput, correctAnswers) => {
     if (!userInput || !correctAnswers) return false;
 
-    const normalizedInput = normalizeJapanese(userInput);
-
     const answersArray = Array.isArray(correctAnswers)
       ? correctAnswers
       : [correctAnswers];
 
+    const input = userInput.trim().toLowerCase();
+
     return answersArray.some((ans) => {
       if (!ans) return false;
 
-      const normalizedAnswer = normalizeJapanese(ans);
+      const answer = ans.trim().toLowerCase();
 
-      // 1️⃣ Exact match
-      if (normalizedInput === normalizedAnswer) return true;
+      // =============================
+      // Jika jawaban Jepang
+      // =============================
+      const containsJapanese = /[\u3040-\u30ff\u4e00-\u9faf]/.test(answer);
 
-      // 2️⃣ Input mengandung jawaban (untuk fleksibilitas)
-      if (
-        normalizedInput.includes(normalizedAnswer) &&
-        normalizedAnswer.length >= 3
-      ) {
-        return true;
+      if (containsJapanese) {
+        const normalizedInput = normalizeJapanese(userInput);
+        const normalizedAnswer = normalizeJapanese(ans);
+
+        return (
+          normalizedInput === normalizedAnswer ||
+          normalizedInput.includes(normalizedAnswer) ||
+          normalizedAnswer.includes(normalizedInput)
+        );
       }
 
-      // 3️⃣ Jawaban mengandung input
-      if (
-        normalizedAnswer.includes(normalizedInput) &&
-        normalizedInput.length >= 3
-      ) {
-        return true;
-      }
+      // =============================
+      // Jika jawaban Bahasa Indonesia
+      // =============================
 
-      return false;
+      // 1️⃣ Hapus bagian dalam kurung
+      const noBracket = answer.split("(")[0].trim();
+
+      // 2️⃣ Pecah berdasarkan slash atau koma
+      const variations = noBracket.split(/[\/,]| atau /).map((v) => v.trim());
+
+      return variations.some((v) => input === v);
     });
   };
 
@@ -1007,32 +1014,80 @@ const App = () => {
           )}
 
           {/* RESULT */}
-          {quizMode === "finished" && (
-            <div className="text-center">
-              <div className="mb-6 inline-flex p-8 bg-yellow-100 rounded-full text-yellow-600">
-                <Trophy size={64} />
-              </div>
+          {quizMode === "finished" &&
+            (() => {
+              const percentage = Math.round((score / 20) * 100);
 
-              <h2 className="text-4xl font-black mb-2 text-slate-800">
-                Selesai!
-              </h2>
+              let level = "";
+              let color = "";
+              let message = "";
 
-              <div className="text-5xl font-black text-indigo-600 mb-10">
-                {score} / 20
-              </div>
+              if (percentage >= 85) {
+                level = "Excellent 🎉";
+                color = "text-green-600";
+                message = "Luar biasa! Pemahaman kamu sudah sangat kuat!";
+              } else if (percentage >= 60) {
+                level = "Good Job 👍";
+                color = "text-indigo-600";
+                message = "Bagus! Tinggal sedikit lagi untuk jadi sempurna.";
+              } else {
+                level = "Keep Practicing 💪";
+                color = "text-red-500";
+                message = "Jangan menyerah! Latihan lagi dan kamu pasti bisa.";
+              }
 
-              <button
-                onClick={() => {
-                  stopAudio();
-                  setQuizMode("selection");
-                }}
-                className="bg-indigo-600 text-white px-12 py-5 rounded-2xl font-black text-xl hover:bg-indigo-700 transition flex items-center gap-2 mx-auto"
-              >
-                <RefreshCw size={24} />
-                Menu Utama
-              </button>
-            </div>
-          )}
+              return (
+                <div className="flex flex-col items-center justify-center flex-1 text-center max-w-xl mx-auto animate-fade-in">
+                  {/* Trophy */}
+                  <div className="mb-6 inline-flex p-10 bg-yellow-100 rounded-full text-yellow-600 shadow-lg">
+                    <Trophy size={72} />
+                  </div>
+
+                  {/* Title */}
+                  <h2 className="text-4xl font-black mb-2 text-slate-800">
+                    Selesai!
+                  </h2>
+
+                  {/* Score */}
+                  <div className={`text-6xl font-black mb-3 ${color}`}>
+                    {score} / 20
+                  </div>
+
+                  {/* Percentage */}
+                  <div className="text-lg font-semibold text-slate-500 mb-6">
+                    {percentage}% Benar
+                  </div>
+
+                  {/* Progress Bar */}
+                  <div className="w-full h-4 bg-slate-200 rounded-full overflow-hidden mb-6">
+                    <div
+                      className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-700"
+                      style={{ width: `${percentage}%` }}
+                    />
+                  </div>
+
+                  {/* Level Badge */}
+                  <div className={`text-xl font-bold mb-2 ${color}`}>
+                    {level}
+                  </div>
+
+                  {/* Message */}
+                  <p className="text-slate-500 mb-10">{message}</p>
+
+                  {/* Button */}
+                  <button
+                    onClick={() => {
+                      stopAudio();
+                      setQuizMode("selection");
+                    }}
+                    className="bg-indigo-600 text-white px-12 py-5 rounded-2xl font-black text-xl hover:bg-indigo-700 transition shadow-lg hover:scale-105 flex items-center gap-2"
+                  >
+                    <RefreshCw size={24} />
+                    Menu Utama
+                  </button>
+                </div>
+              );
+            })()}
 
           {/* DICTIONARY - VERSI BARU YANG LEBIH MENARIK */}
           {quizMode === "dictionary" && (
@@ -1146,11 +1201,14 @@ const App = () => {
                                     className="mx-[1px] align-bottom"
                                   >
                                     {item.kanji}
-                                    {item.furigana && !["は", "へ", "を"].includes(item.kanji) && (
-                                      <rt className="text-indigo-500 text-xs relative -top-1.5 font-medium">
-                                        {item.furigana}
-                                      </rt>
-                                    )}
+                                    {item.furigana &&
+                                      !["は", "へ", "を"].includes(
+                                        item.kanji,
+                                      ) && (
+                                        <rt className="text-indigo-500 text-xs relative -top-1.5 font-medium">
+                                          {item.furigana}
+                                        </rt>
+                                      )}
                                   </ruby>
                                 ))}
                               </div>
@@ -1244,11 +1302,14 @@ const App = () => {
                                       {line.reading.map((item, i) => (
                                         <ruby key={i} className="mx-[1px]">
                                           {item.kanji}
-                                          {item.furigana && !["は", "へ", "を"].includes(item.kanji) && (
-                                            <rt className="text-xs text-indigo-500 relative -top-1 font-medium">
-                                              {item.furigana}
-                                            </rt>
-                                          )}
+                                          {item.furigana &&
+                                            !["は", "へ", "を"].includes(
+                                              item.kanji,
+                                            ) && (
+                                              <rt className="text-xs text-indigo-500 relative -top-1 font-medium">
+                                                {item.furigana}
+                                              </rt>
+                                            )}
                                         </ruby>
                                       ))}
                                     </p>
