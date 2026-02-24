@@ -563,7 +563,7 @@ const App = () => {
       <div className="min-h-screen lg:h-screen w-full bg-white flex flex-col lg:flex-row">
         {/* SIDE PANEL */}
         <div
-          className={`lg:w-[28%] px-5 py-3 lg:p-8 text-white flex flex-col min-h-[180px] lg:min-h-full lg:overflow-hidden transition-colors duration-500 ${
+          className={`lg:w-[28%] px-5 py-2 lg:p-8 text-white flex flex-col min-h-[110px] lg:min-h-full lg:overflow-hidden transition-colors duration-500 ${
             quizMode === "selection" ||
             quizMode === "groupSelection" ||
             quizMode === "dictionary"
@@ -1037,10 +1037,10 @@ const App = () => {
               }
 
               return (
-                <div className="flex flex-col items-center justify-center flex-1 text-center max-w-xl mx-auto animate-fade-in">
+                <div className="flex flex-col items-center justify-start lg:justify-center flex-1 text-center max-w-xl mx-auto pt-8 lg:pt-0 px-6">
                   {/* Trophy */}
-                  <div className="mb-6 inline-flex p-10 bg-yellow-100 rounded-full text-yellow-600 shadow-lg">
-                    <Trophy size={72} />
+                  <div className="mb-5 inline-flex p-6 lg:p-10 bg-yellow-100 rounded-full text-yellow-600 shadow-lg">
+                    <Trophy size={48} className="lg:w-[72px] lg:h-[72px]" />
                   </div>
 
                   {/* Title */}
@@ -1049,7 +1049,7 @@ const App = () => {
                   </h2>
 
                   {/* Score */}
-                  <div className={`text-6xl font-black mb-3 ${color}`}>
+                  <div className={`text-5xl lg:text-6xl font-black mb-2 ${color}`}>
                     {score} / 20
                   </div>
 
@@ -1059,7 +1059,7 @@ const App = () => {
                   </div>
 
                   {/* Progress Bar */}
-                  <div className="w-full h-4 bg-slate-200 rounded-full overflow-hidden mb-6">
+                  <div className="w-full h-3 lg:h-4 bg-slate-200 rounded-full overflow-hidden mb-5">
                     <div
                       className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-700"
                       style={{ width: `${percentage}%` }}
