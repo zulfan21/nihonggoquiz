@@ -556,7 +556,7 @@ const App = () => {
       <div className="min-h-screen lg:h-screen w-full bg-white flex flex-col lg:flex-row">
         {/* SIDE PANEL */}
         <div
-          className={`lg:w-[28%] px-5 py-3 lg:p-8 text-white flex flex-col justify-between min-h-[180px] lg:min-h-full lg:overflow-hidden transition-colors duration-500 ${
+          className={`lg:w-[28%] px-5 py-3 lg:p-8 text-white flex flex-col min-h-[180px] lg:min-h-full lg:overflow-hidden transition-colors duration-500 ${
             quizMode === "selection" ||
             quizMode === "groupSelection" ||
             quizMode === "dictionary"
@@ -624,7 +624,7 @@ const App = () => {
             </div>
           )}
 
-          <div className="hidden lg:block text-xs opacity-50 uppercase tracking-widest">
+          <div className="hidden lg:block text-xs opacity-50 uppercase tracking-widest mt-auto">
             Adaptive Japanese Trainer
           </div>
         </div>
