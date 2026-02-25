@@ -69,12 +69,6 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://cdn.tailwindcss.com";
-    document.head.appendChild(script);
-  }, []);
-
-  useEffect(() => {
     const style = document.createElement("style");
     style.innerHTML = `
     .hide-scrollbar::-webkit-scrollbar {
@@ -83,6 +77,24 @@ const App = () => {
   `;
     document.head.appendChild(style);
   }, []);
+
+  useEffect(() => {
+    const handlePopState = (event) => {
+      if (quizMode !== "selection") {
+        // Cegah keluar
+        window.history.pushState(null, "", window.location.href);
+        setShowConfirm(true);
+      }
+    };
+
+    // Tambahkan dummy state supaya back bisa ditangkap
+    window.history.pushState(null, "", window.location.href);
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [quizMode]);
 
   const groupedVocab = fullVocabData.reduce((acc, word) => {
     if (!acc[word.group]) acc[word.group] = [];

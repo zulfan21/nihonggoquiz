@@ -96,30 +96,39 @@ export const generateQuestions = (
       filtered = fullVocabData.filter((v) => selectedGroups.includes(v.group));
     }
 
-    // Shuffle random
-    const shuffled = [...filtered].sort(() => Math.random() - 0.5);
+    if (filtered.length === 0) return [];
 
-    questions = shuffled.map((v) => ({
-      id: v.id,
-      display: (
-        <div className="text-6xl font-black text-slate-800 text-center">
-          {v.reading?.map((item, index) => (
-            <ruby key={index} className="mx-[2px] align-bottom">
-              {item.kanji}
-              {item.furigana && (
-                <rt className="text-text-slate-900 text-sm relative -top-2">
-                  {item.furigana}
-                </rt>
-              )}
-            </ruby>
-          ))}
-        </div>
-      ),
-      prompt: "Apa arti kata di atas?",
-      answer: v.answer,
-      explanation: v.explanation,
-      conversation: v.conversation,
-    }));
+    const generated = [];
+
+    // 🔥 Loop sampai jumlah soal cukup
+    while (generated.length < total) {
+      const randomItem = filtered[Math.floor(Math.random() * filtered.length)];
+
+      generated.push({
+        id: uuidv4(), // pakai uuid supaya tetap unik
+        display: (
+          <div className="text-6xl font-black text-slate-800 text-center">
+            {randomItem.reading?.map((item, index) => (
+              <ruby key={index} className="mx-[2px] align-bottom">
+                {item.kanji}
+                {item.furigana && (
+                  <rt className="text-text-slate-900 text-sm relative -top-2">
+                    {item.furigana}
+                  </rt>
+                )}
+              </ruby>
+            ))}
+          </div>
+        ),
+        prompt: "Apa arti kata di atas?",
+        answer: randomItem.answer,
+        explanation: randomItem.explanation,
+        conversation: randomItem.conversation,
+      });
+    }
+
+    questions = generated;
+    
   } else if (categoryId === "shopping") {
     for (let i = 0; i < total; i++) {
       const price = Math.floor(Math.random() * 50000) + 100;
