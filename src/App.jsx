@@ -580,8 +580,8 @@ const App = () => {
         >
           <div className="relative mb-4 lg:mb-6">
             <div className="flex items-center justify-between">
+              {/* Left: Logo + Title */}
               <div className="flex items-center gap-3">
-                {/* Logo */}
                 <div
                   className={`w-10 h-10 lg:w-14 lg:h-14 rounded-2xl flex items-center justify-center shadow-md transition-colors duration-500 ${
                     quizMode === "selection" ||
@@ -595,7 +595,6 @@ const App = () => {
                   <span className="text-lg lg:text-2xl font-black">あ</span>
                 </div>
 
-                {/* Title */}
                 <div className="leading-tight">
                   <h1 className="text-lg lg:text-3xl font-black tracking-tight">
                     Nihongo Quizu
@@ -605,6 +604,25 @@ const App = () => {
                   </p>
                 </div>
               </div>
+
+              {/* ❌ Exit Button MOBILE ONLY */}
+              {quizMode !== "selection" && quizMode !== "groupSelection" && (
+                <button
+                  onClick={() => setShowConfirm(true)}
+                  className="
+                    lg:hidden
+                    w-8 h-8
+                    rounded-full
+                    bg-white/20
+                    hover:bg-white/30
+                    text-white
+                    flex items-center justify-center
+                    transition
+                  "
+                >
+                  ✕
+                </button>
+              )}
             </div>
           </div>
 
@@ -652,13 +670,56 @@ const App = () => {
           </div>
         </div>
 
+        {/* Modal Konfirmasi Keluar */}
+        {showConfirm && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[999]">
+            <div className="bg-white rounded-2xl shadow-xl p-8 w-[90%] max-w-sm text-center">
+              <h3 className="text-xl font-bold text-slate-800 mb-3">
+                {quizMode === "dictionary"
+                  ? "Tutup Kamus?"
+                  : "Keluar dari latihan?"}
+              </h3>
+
+              <p className="text-slate-500 mb-6 text-sm">
+                {quizMode === "dictionary"
+                  ? "Kamu akan kembali ke menu utama."
+                  : "Progress kamu akan hilang."}
+              </p>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowConfirm(false)}
+                  className="flex-1 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition"
+                >
+                  Batal
+                </button>
+
+                <button
+                  onClick={() => {
+                    setShowConfirm(false);
+                    stopAudio();
+                    setQuizMode("selection");
+                  }}
+                  className="flex-1 py-3 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold transition"
+                >
+                  Keluar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* MAIN AREA */}
         <div
           className={`
             lg:w-[72%] 
             p-6 lg:p-12 
             flex flex-col 
-            bg-white 
+            bg-white
+            transition-all duration-500 ease-out
+            ${
+              quizMode ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+            }
             ${
               quizMode === "quiz" || quizMode === "finished"
                 ? "h-screen overflow-hidden"
@@ -672,64 +733,22 @@ const App = () => {
             <button
               onClick={() => setShowConfirm(true)}
               className="
-                absolute 
-                top-3 right-3 
-                lg:top-6 lg:right-6
-                w-8 h-8 
-                lg:w-10 lg:h-10
-                rounded-full 
-                bg-white/70 
+                hidden lg:flex
+                absolute top-6 right-6
+                w-10 h-10
+                rounded-full
+                bg-white/80
                 backdrop-blur-md
                 border border-white/40
-                text-slate-600 
-                hover:text-slate-900
+                text-slate-600
                 hover:bg-white
-                flex items-center justify-center 
-                transition-all duration-200
-                shadow-sm
+                items-center justify-center
+                shadow-md
+                transition
               "
             >
               ✕
             </button>
-          )}
-
-          {/* Modal Konfirmasi Keluar */}
-          {showConfirm && (
-            <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-50">
-              <div className="bg-white rounded-2xl shadow-xl p-8 w-[90%] max-w-sm text-center">
-                <h3 className="text-xl font-bold text-slate-800 mb-3">
-                  {quizMode === "dictionary"
-                    ? "Tutup Kamus?"
-                    : "Keluar dari latihan?"}
-                </h3>
-
-                <p className="text-slate-500 mb-6 text-sm">
-                  {quizMode === "dictionary"
-                    ? "Kamu akan kembali ke menu utama."
-                    : "Progress kamu akan hilang."}
-                </p>
-
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setShowConfirm(false)}
-                    className="flex-1 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition"
-                  >
-                    Batal
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setShowConfirm(false);
-                      stopAudio();
-                      setQuizMode("selection");
-                    }}
-                    className="flex-1 py-3 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold transition"
-                  >
-                    Keluar
-                  </button>
-                </div>
-              </div>
-            </div>
           )}
 
           {/* SELECTION SCREEN */}
@@ -744,18 +763,25 @@ const App = () => {
               "
             >
               {/* TITLE */}
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-3 lg:mb-4 text-slate-800">
-                Selamat Datang ≽^•⩊•^≼
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-3 text-slate-800">
+                こんにちは!{" "}
+                <span className="cat">
+                  ฅ^
+                  <span className="eye">&gt;</span>
+                  <span className="mouth">⩊</span>
+                  <span className="eye">&lt;</span>
+                  ^ฅ
+                </span>
               </h2>
 
               <p className="text-sm sm:text-base lg:text-lg text-slate-400 mb-8 lg:mb-12">
                 Nihongo Quizu ada untuk membantu kamu berlatih pengetahuan dasar
-                bahasa Jepang 
+                bahasa Jepang
               </p>
 
               {/* CARD LIST */}
               <div className="flex flex-col gap-5 sm:gap-6 lg:grid lg:grid-cols-2 lg:gap-8">
-                {categories.map((cat) => {
+                {categories.map((cat, index) => {
                   const Icon = cat.icon;
 
                   return (
@@ -769,11 +795,14 @@ const App = () => {
                         border border-slate-200
                         hover:border-indigo-500
                         hover:bg-indigo-50
-                        transition-all
+                        transition-all duration-300
                         text-left
                         shadow-sm hover:shadow-xl
                         bg-white
+                        transform hover:-translate-y-1
+                        animate-fadeUp
                       "
+                      style={{ animationDelay: `${index * 80}ms` }}
                     >
                       {/* ICON */}
                       <div
@@ -880,7 +909,10 @@ const App = () => {
               <div className="w-full max-w-3xl px-4">
                 {/* SOAL */}
                 <div className="text-center mb-10">
-                  <div className="text-4xl sm:text-5xl lg:text-7xl font-black text-slate-800 mb-4 lg:mb-6 min-h-[100px] lg:min-h-[140px] flex items-center justify-center">
+                  <div
+                    key={currentIndex}
+                    className="text-4xl sm:text-5xl lg:text-7xl font-black text-slate-800 mb-4 lg:mb-6 min-h-[100px] lg:min-h-[140px] flex items-center justify-center animate-question"
+                  >
                     {quizData[currentIndex]?.display}
                   </div>
 
@@ -1211,7 +1243,14 @@ const App = () => {
                     {getFilteredWords().map((word) => (
                       <div
                         key={word.id}
-                        className="group bg-white border border-slate-200 hover:border-indigo-400 rounded-2xl p-4 sm:p-5 lg:p-6 transition-all duration-300 hover:shadow-lg"
+                        className="
+                          group bg-white border border-slate-200 
+                          hover:border-indigo-400 
+                          rounded-2xl p-4 sm:p-5 lg:p-6 
+                          transition-all duration-300 
+                          hover:shadow-xl 
+                          hover:-translate-y-1
+                        "
                       >
                         <div className="flex items-start justify-between">
                           {/* Left: Kanji & Furigana */}
