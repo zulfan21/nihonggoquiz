@@ -595,16 +595,20 @@ const App = () => {
               {/* Left: Logo + Title */}
               <div className="flex items-center gap-3">
                 <div
-                  className={`w-10 h-10 lg:w-14 lg:h-14 rounded-2xl flex items-center justify-center shadow-md transition-colors duration-500 ${
-                    quizMode === "selection" ||
-                    quizMode === "groupSelection" ||
-                    quizMode === "dictionary"
-                      ? "bg-white text-indigo-600"
-                      : "bg-white " +
-                        currentCategory?.color.replace("bg-", "text-")
-                  }`}
+                  className="w-10 h-10 lg:w-14 lg:h-14 rounded-2xl 
+                    flex items-center justify-center shadow-md bg-white"
                 >
-                  <span className="text-lg lg:text-2xl font-black">あ</span>
+                  <span
+                    className={`text-lg lg:text-2xl font-black ${
+                      quizMode === "selection" ||
+                      quizMode === "groupSelection" ||
+                      quizMode === "dictionary"
+                        ? "text-indigo-600"
+                        : currentCategory?.textColor
+                    }`}
+                  >
+                    あ
+                  </span>
                 </div>
 
                 <div className="leading-tight">
